@@ -48,3 +48,24 @@ The application uses a simple data model with meaningful identifiers:
    - Grade level
 
 All data is stored in memory, which means data will be reset when the server restarts.
+
+## Authentication configuration
+
+Activity mutations require a teacher or administrator bearer token. Configure
+users with the `AUTH_USERS_JSON` environment variable. Passwords must be stored
+as PBKDF2 records generated with `auth.hash_password`, never as plaintext. Each
+record has `password_hash`, `role`, and `tenant_id` fields:
+
+```json
+{
+   "teacher@mergington.edu": {
+      "password_hash": "pbkdf2_sha256$...$...",
+      "role": "staff",
+      "tenant_id": "mergington-high-school"
+   }
+}
+```
+
+Use `POST /auth/login` with a JSON body containing `username` and `password`,
+then send the returned token as `Authorization: Bearer <token>`. Tokens expire
+after one hour and are stored only in memory.
